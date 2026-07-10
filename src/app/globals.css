@@ -1,0 +1,92 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 240 10% 4%;
+    --foreground: 210 20% 98%;
+
+    --card: 240 10% 8%;
+    --card-foreground: 210 20% 98%;
+
+    --popover: 240 10% 7%;
+    --popover-foreground: 210 20% 98%;
+
+    --primary: 258 90% 66%;
+    --primary-foreground: 210 20% 98%;
+
+    --secondary: 240 6% 14%;
+    --secondary-foreground: 210 20% 98%;
+
+    --muted: 240 6% 14%;
+    --muted-foreground: 240 5% 65%;
+
+    --accent: 258 60% 20%;
+    --accent-foreground: 210 20% 98%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 210 20% 98%;
+
+    --border: 240 6% 18%;
+    --input: 240 6% 18%;
+    --ring: 258 90% 66%;
+
+    --radius: 0.75rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    background-image:
+      radial-gradient(circle at 15% 0%, rgba(124, 58, 237, 0.12) 0%, transparent 45%),
+      radial-gradient(circle at 85% 20%, rgba(56, 189, 248, 0.08) 0%, transparent 40%);
+    background-attachment: fixed;
+  }
+}
+
+@layer components {
+  /* Reusable "glass" surface used across sidebar, cards, panels */
+  .glass {
+    @apply bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.35)];
+  }
+  .glass-hover {
+    @apply hover:bg-white/[0.06] hover:border-white/[0.14] transition-colors duration-200;
+  }
+  .glass-panel {
+    @apply glass rounded-2xl;
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.prose-chat p {
+  margin: 0.5em 0;
+}
+.prose-chat pre {
+  @apply bg-black/40 border border-white/10 rounded-lg p-3 overflow-x-auto my-2;
+}
+.prose-chat code {
+  @apply text-[0.85em] bg-black/30 px-1 py-0.5 rounded;
+}
