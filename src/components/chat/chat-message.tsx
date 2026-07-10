@@ -18,17 +18,28 @@ export function ChatMessageBubble({ message }: { message: ChatMessage }) {
     setTimeout(() => setCopied(false), 1500);
   }
 
+  const customBadge = !isUser && message.meta?.short ? (message.meta.short as string) : null;
+  const customColor = !isUser && message.meta?.color ? (message.meta.color as string) : null;
+
   return (
     <div className={cn("flex gap-3 group animate-fade-in", isUser && "flex-row-reverse")}>
       <div
         className={cn(
-          "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border",
+          "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-[10px] font-bold shadow-sm select-none",
           isUser
             ? "bg-primary/15 border-primary/30 text-primary"
-            : "bg-white/[0.04] border-white/10 text-foreground/70"
+            : customColor
+              ? `${customColor} border-transparent text-white`
+              : "bg-white/[0.04] border-white/10 text-foreground/70"
         )}
       >
-        {isUser ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
+        {isUser ? (
+          <User className="h-4 w-4" />
+        ) : customBadge ? (
+          <span>{customBadge}</span>
+        ) : (
+          <Bot className="h-4 w-4" />
+        )}
       </div>
 
       <div className={cn("max-w-[80%] flex flex-col gap-1", isUser && "items-end")}>

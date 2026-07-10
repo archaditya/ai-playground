@@ -15,16 +15,9 @@ export class ApiError extends Error {
 /**
  * Wraps a POST route handler with:
  *  - rate limiting (per-IP, per-route)
+ *  - global input token limit validation (1024 tokens / 4096 chars)
  *  - structured request/response logging
  *  - consistent error → JSON response mapping (Zod, ApiError, unknown)
- *
- * Usage in a route.ts file:
- *
- *   export const POST = withApiHandler("persona", async (req) => {
- *     const body = personaSchema.parse(await req.json());
- *     ...
- *     return NextResponse.json({ reply });
- *   });
  */
 export function withApiHandler(
   routeName: string,
@@ -34,7 +27,7 @@ export function withApiHandler(
     const start = Date.now();
     const clientKey = getClientKey(req, routeName);
 
-    const { allowed, remaining, resetAt } = checkRateLimit(clientKey);
+    const { allowed, remaining, resetAt } = await checkRateLimit(clientKey);
     if (!allowed) {
       logger.warn("Rate limit exceeded", { route: routeName, clientKey });
       return NextResponse.json(
@@ -47,6 +40,28 @@ export function withApiHandler(
           },
         }
       );
+    }
+
+    // Global Token Limit Check: Intercept request body to validate message history limits
+    try {
+      const clone = req.clone();
+      const body = await clone.json();
+      if (body && Array.isArray(body.messages)) {
+        const totalChars = body.messages.reduce(
+          (sum: number, m: any) => sum + (typeof m.content === "string" ? m.content.length : 0),
+          0
+        );
+        // 4096 characters ~ 1024 tokens limit
+        if (totalChars > 4096) {
+          logger.warn("Global token limit exceeded", { route: routeName, clientKey, totalChars });
+          return NextResponse.json(
+            { error: "Total input history exceeds the limit of 1024 tokens (~4096 characters). Please clear history or shorten your message." },
+            { status: 400 }
+          );
+        }
+      }
+    } catch (e) {
+      // Body is not JSON or doesn't have messages, proceed normally
     }
 
     try {

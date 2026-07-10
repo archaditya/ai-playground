@@ -1,6 +1,67 @@
 import OpenAI from "openai";
 
 /**
+ * Reusable Weather lookup tool.
+ * Queries wttr.in for real-time weather.
+ */
+export async function getWeather(location: string): Promise<string> {
+  try {
+    const res = await fetch(`https://wttr.in/${encodeURIComponent(location.toLowerCase())}?format=%C+%t`);
+    if (!res.ok) throw new Error("wttr.in status not ok");
+    const data = await res.text();
+    return JSON.stringify({ location, weatherInfo: data.trim() });
+  } catch (error: any) {
+    return JSON.stringify({ error: `Not able to find weather for this ${location}` });
+  }
+}
+
+/**
+ * Reusable YouTube Search lookup tool.
+ * Queries official YouTube API snippet endpoint.
+ */
+export async function getYouTubeVideosData(channelName: string, topic: string): Promise<string> {
+  try {
+    const API_KEY = process.env.YOUTUBE_API_KEY || process.env.YT_API;
+    if (!API_KEY) {
+      return JSON.stringify({ error: "YouTube API key is not configured on the server." });
+    }
+    const search = `${channelName} ${topic} tutorial`;
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=3&q=${encodeURIComponent(search)}&type=video&key=${API_KEY}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`YouTube API error: ${res.status}`);
+    const data = await res.json();
+    const videos = data.items?.map((item: any) => ({
+      title: item.snippet.title,
+      link: `https://www.youtube.com/watch?v=${item.id.videoId}`,
+      thumbnail: item.snippet.thumbnails?.medium?.url
+    })) || [];
+    return JSON.stringify({ topic, videos });
+  } catch (error: any) {
+    console.error("YouTube API Error:", error.message);
+    return JSON.stringify({
+      error: `Could not find YouTube videos for ${topic}`,
+    });
+  }
+}
+
+/**
+ * Reusable safe calculator tool.
+ */
+export function safeCalculate(expression: string): string {
+  // Only allow digits, whitespace, and basic math operators/parentheses.
+  if (!/^[\d\s+\-*/().]+$/.test(expression)) {
+    return "Error: expression contains disallowed characters.";
+  }
+  try {
+    // eslint-disable-next-line no-new-func
+    const result = Function(`"use strict"; return (${expression})`)();
+    return String(result);
+  } catch {
+    return "Error: could not evaluate expression.";
+  }
+}
+
+/**
  * Tool definitions shared by the Tool Calling and Workflow Agent demos.
  * Add a new tool by: (1) describing it here, (2) adding its implementation
  * to `toolImplementations`. Nothing else needs to change.
@@ -37,52 +98,26 @@ export const toolDefinitions: OpenAI.Chat.ChatCompletionTool[] = [
   {
     type: "function",
     function: {
-      name: "search_knowledge_base",
-      description: "Search the local mock knowledge base for a topic.",
+      name: "get_youtube_videos",
+      description: "Suggest YouTube videos for a topic from a channel.",
       parameters: {
         type: "object",
         properties: {
-          query: { type: "string", description: "Search query" },
+          channelName: { type: "string", description: "YouTube Channel Name" },
+          topic: { type: "string", description: "Search Topic" },
         },
-        required: ["query"],
+        required: ["channelName", "topic"],
       },
     },
   },
 ];
 
-/** Mock knowledge base used by search_knowledge_base — swap for a real DB later. */
-const MOCK_KB: Record<string, string> = {
-  langchain: "LangChain is a framework for building applications powered by LLMs, with abstractions for chains, agents, and retrieval.",
-  "vector database": "A vector database stores embeddings and supports similarity search, commonly used for RAG pipelines.",
-  "rate limiting": "Rate limiting restricts how many requests a client can make in a time window to protect backend resources.",
-};
-
-function safeCalculate(expression: string): string {
-  // Only allow digits, whitespace, and basic math operators/parentheses.
-  if (!/^[\d\s+\-*/().]+$/.test(expression)) {
-    return "Error: expression contains disallowed characters.";
-  }
-  try {
-    // eslint-disable-next-line no-new-func
-    const result = Function(`"use strict"; return (${expression})`)();
-    return String(result);
-  } catch {
-    return "Error: could not evaluate expression.";
-  }
-}
-
 /** Implementations, keyed by the same names declared in `toolDefinitions`. */
 export const toolImplementations: Record<string, (args: any) => Promise<string> | string> = {
-  get_weather: async ({ city }: { city: string }) => {
-    // Placeholder mock — swap in a real weather API call when needed.
-    const mockTemp = 20 + (city.length % 12);
-    return `The weather in ${city} is approximately ${mockTemp}°C with clear skies. (mock data — wire up a real weather API here)`;
-  },
+  get_weather: async ({ city }: { city: string }) => getWeather(city),
   calculate: ({ expression }: { expression: string }) => safeCalculate(expression),
-  search_knowledge_base: ({ query }: { query: string }) => {
-    const key = Object.keys(MOCK_KB).find((k) => query.toLowerCase().includes(k));
-    return key ? MOCK_KB[key] : `No knowledge base entry found for "${query}".`;
-  },
+  get_youtube_videos: async ({ channelName, topic }: { channelName: string; topic: string }) =>
+    getYouTubeVideosData(channelName, topic),
 };
 
 export async function runTool(name: string, args: any): Promise<string> {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { Vote, Sparkles } from "lucide-react";
+import { Vote, Sparkles, AlertCircle } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { ConfigPanel } from "@/components/chat/config-panel";
 import { ChatPanel } from "@/components/chat/chat-panel";
@@ -36,7 +36,7 @@ export default function MultiLLMPage() {
       <PageHeader
         icon={Vote}
         title="Multi-LLM Voting"
-        description="Your query fans out to 3 models; a matcher model arbitrates the best final answer."
+        description="Your query fans out to 3 thinking models; gpt-4o arbitrates the best final answer."
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-6 items-start">
@@ -46,39 +46,57 @@ export default function MultiLLMPage() {
           icon={Vote}
         >
           <div className="space-y-3 text-sm">
-            <Step n={1} label="Query sent in parallel" detail="OpenAI, Anthropic, and a 3rd model each answer independently" />
-            <Step n={2} label="Matcher evaluates" detail="A dedicated LLM compares all candidates for correctness & clarity" />
+            <Step n={1} label="Query sent in parallel" detail="o3-mini, Gemini, and o1-mini answer independently" />
+            <Step n={2} label="Matcher evaluates" detail="gpt-4o compares all candidates for correctness & clarity" />
             <Step n={3} label="Final answer returned" detail="The best (or synthesized) response is shown in chat" />
           </div>
 
           <Separator />
 
-          {lastResult && lastResult.candidates.length > 0 ? (
-            <div className="space-y-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Candidate responses
-              </p>
-              {lastResult.candidates.map((c, i) => (
-                <div key={i} className="rounded-lg border border-white/10 bg-white/[0.02] p-3 space-y-1.5">
-                  <Badge variant="outline" className="font-mono text-[10px]">
-                    {c.model}
+          {lastResult ? (
+            <div className="space-y-4">
+              {/* Highlighted Final Validator Response */}
+              <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 space-y-1.5 animate-pulse-subtle">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-primary flex items-center gap-1">
+                    <Sparkles className="h-3.5 w-3.5 text-primary" />
+                    Validator Output
+                  </span>
+                  <Badge variant="secondary" className="font-mono text-[9px]">
+                    {lastResult.matcherModel}
                   </Badge>
-                  <p className="text-xs text-muted-foreground leading-relaxed line-clamp-4">
-                    {c.response}
-                  </p>
                 </div>
-              ))}
-              <div className="flex items-center gap-1.5 pt-1">
-                <Sparkles className="h-3 w-3 text-primary" />
-                <p className="text-[11px] text-muted-foreground">
-                  Arbitrated by <span className="text-foreground/80">{lastResult.matcherModel}</span>
+                <p className="text-xs text-foreground leading-relaxed whitespace-pre-wrap">
+                  {lastResult.finalAnswer}
                 </p>
+              </div>
+
+              <Separator />
+
+              {/* Candidate Responses */}
+              <div className="space-y-3">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  Candidate Responses (Thinking Models)
+                </p>
+                {lastResult.candidates.map((c, i) => (
+                  <div key={i} className="rounded-lg border border-white/10 bg-white/[0.02] p-3 space-y-1.5">
+                    <Badge variant="outline" className="font-mono text-[10px]">
+                      {c.model}
+                    </Badge>
+                    <p className="text-xs text-muted-foreground leading-relaxed line-clamp-6 overflow-y-auto max-h-[120px] whitespace-pre-wrap">
+                      {c.response}
+                    </p>
+                  </div>
+                ))}
               </div>
             </div>
           ) : (
-            <p className="text-xs text-muted-foreground">
-              Candidate responses will appear here after your first message.
-            </p>
+            <div className="flex flex-col items-center justify-center py-6 text-center text-muted-foreground">
+              <AlertCircle className="h-5 w-5 mb-2 opacity-50" />
+              <p className="text-xs">
+                Validator and candidate responses will appear here.
+              </p>
+            </div>
           )}
         </ConfigPanel>
 

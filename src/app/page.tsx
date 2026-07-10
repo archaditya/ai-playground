@@ -75,15 +75,6 @@ export default function DashboardPage() {
           );
         })}
       </div>
-
-      <div className="mt-12 glass-panel p-6">
-        <h2 className="text-sm font-semibold mb-2">Adding a new assignment</h2>
-        <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
-          <li>Add one entry to <code className="text-foreground/80">src/lib/experiments.ts</code></li>
-          <li>Create <code className="text-foreground/80">src/app/&lt;slug&gt;/page.tsx</code> reusing <code className="text-foreground/80">ChatPanel</code></li>
-          <li>Create <code className="text-foreground/80">src/app/api/&lt;slug&gt;/route.ts</code> reusing the LLM + prompt helpers</li>
-        </ol>
-      </div>
     </div>
   );
 }

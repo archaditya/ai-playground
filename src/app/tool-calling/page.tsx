@@ -32,7 +32,7 @@ export default function ToolCallingPage() {
         <ConfigPanel title="Available tools" description="Defined in lib/tools.ts" icon={Wrench}>
           <ToolRow icon={CloudSun} name="get_weather" desc="Mock weather lookup by city" />
           <ToolRow icon={Calculator} name="calculate" desc="Safe arithmetic expression evaluator" />
-          <ToolRow icon={BookOpen} name="search_knowledge_base" desc="Mock local KB search" />
+          {/* <ToolRow icon={BookOpen} name="search_knowledge_base" desc="Mock local KB search" /> */}
 
           {toolsUsed.length > 0 && (
             <div className="pt-2">
