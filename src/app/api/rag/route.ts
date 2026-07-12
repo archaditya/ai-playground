@@ -61,7 +61,7 @@ export const POST = withApiHandler("rag", async (req) => {
     User Documents:
     ${results.map((e) => JSON.stringify({ 
       bookName: e.metadata?.source ? path.basename(e.metadata.source) : "Unknown Book", 
-      pageContent: e.pageContent, 
+      pageContent: e.content, 
       pageNumber: e.metadata?.loc?.pageNumber || "Unknown" 
     })).join("\n\n")}
   `;
