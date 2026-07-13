@@ -13,6 +13,7 @@ import {
   ArrowUpRight,
   Sparkles,
   MessageSquare,
+  Github,
   type LucideIcon,
 } from "lucide-react";
 import { EXPERIMENTS } from "@/lib/experiments";
@@ -35,48 +36,64 @@ const ICONS: Record<string, LucideIcon> = {
 
 export default function DashboardPage() {
   return (
-    <div className="max-w-6xl mx-auto px-5 py-10 lg:px-10 lg:py-14 animate-fade-in">
-      <div className="flex items-center gap-2 mb-3">
-        <Sparkles className="h-4 w-4 text-primary" />
-        <span className="text-xs font-semibold uppercase tracking-widest text-primary">
-          GenAI Cohort
-        </span>
-      </div>
-      <h1 className="text-3xl lg:text-4xl font-bold tracking-tight mb-3">
-        AI Engineering Playground
-      </h1>
-      <p className="text-muted-foreground max-w-2xl mb-10">
-        One dashboard, one page per assignment. Pick an experiment below — each ships with its
-        own configuration panel, chat interface, and dedicated API route, so building the next
-        one never means rewriting the last one.
-      </p>
+    <div className="max-w-6xl mx-auto px-5 py-4 lg:px-6 lg:py-8 animate-fade-in flex flex-col min-h-[calc(100vh-4rem)]">
+      <div className="flex-grow">
+        <div className="flex items-center gap-2 mb-3">
+          <Sparkles className="h-4 w-4 text-primary" />
+          <span className="text-xs font-semibold uppercase tracking-widest text-primary">
+            GenAI Cohort
+          </span>
+        </div>
+        <h1 className="text-3xl lg:text-4xl font-bold tracking-tight mb-3">
+          AI Engineering Playground
+        </h1>
+        <p className="text-muted-foreground max-w-2xl mb-10">
+          One dashboard, one page per assignment. Pick an experiment below — each ships with its
+          own configuration panel, chat interface, and dedicated API route, so building the next
+          one never means rewriting the last one.
+        </p>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-        {EXPERIMENTS.map((exp) => {
-          const Icon = ICONS[exp.icon] ?? Sparkles;
-          return (
-            <Link key={exp.slug} href={`/${exp.slug}`} className="group">
-              <Card className="glass-hover h-full transition-transform duration-200 group-hover:-translate-y-0.5">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 border border-primary/20">
-                      <Icon className="h-5 w-5 text-primary" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+          {EXPERIMENTS.map((exp) => {
+            const Icon = ICONS[exp.icon] ?? Sparkles;
+            return (
+              <Link key={exp.slug} href={`/${exp.slug}`} className="group">
+                <Card className="glass-hover h-full transition-transform duration-200 group-hover:-translate-y-0.5">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 border border-primary/20">
+                        <Icon className="h-5 w-5 text-primary" />
+                      </div>
+                      <ArrowUpRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-primary transition-colors" />
                     </div>
-                    <ArrowUpRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-primary transition-colors" />
-                  </div>
-                  <CardTitle className="pt-2">{exp.title}</CardTitle>
-                  <CardDescription>{exp.description}</CardDescription>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <Badge variant="outline" className="font-mono text-[10px]">
-                    {exp.apiPath}
-                  </Badge>
-                </CardContent>
-              </Card>
-            </Link>
-          );
-        })}
+                    <CardTitle className="pt-2">{exp.title}</CardTitle>
+                    <CardDescription>{exp.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <Badge variant="outline" className="font-mono text-[10px]">
+                      {exp.apiPath}
+                    </Badge>
+                  </CardContent>
+                </Card>
+              </Link>
+            );
+          })}
+        </div>
       </div>
+
+      {/* Elegant Footer */}
+      <footer className="mt-20 pt-6 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
+        <p>© {new Date().getFullYear()} AI Engineering Playground. Built by <a href="https://archadi.dev" target="_blank">archaditya.dev</a></p>
+        <a
+          href="https://github.com/archaditya"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1.5 hover:text-foreground transition-colors"
+        >
+          <Github className="h-3.5 w-3.5" />
+          GitHub Profile
+        </a>
+      </footer>
     </div>
   );
 }

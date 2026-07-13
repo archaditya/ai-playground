@@ -6,7 +6,7 @@ export default function ChatGPTClonePlaceholderPage() {
           ChatGPT Clone Workspace
         </h1>
         <p className="text-sm text-muted-foreground">
-          Database, ORM setup, Clerk auth, React Query, and Theme providers are now configured. You can safely build your custom chat interface UI and API endpoints here.
+          Database, ORM setup, Clerk auth, React Query, and Theme providers are now configured. After next class will build the chat UI and manage the sessions and message accordingly.
         </p>
       </div>
     </div>
