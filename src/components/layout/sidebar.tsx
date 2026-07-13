@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useUser, UserButton, useClerk } from "@clerk/nextjs";
 import {
   Drama,
   Vote,
@@ -15,6 +16,8 @@ import {
   Search,
   LayoutDashboard,
   Sparkles,
+  MessageSquare,
+  LogOut,
   type LucideIcon,
 } from "lucide-react";
 import { EXPERIMENTS } from "@/lib/experiments";
@@ -32,10 +35,13 @@ const ICONS: Record<string, LucideIcon> = {
   Youtube,
   FileText,
   Search,
+  MessageSquare,
 };
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { user, isSignedIn } = useUser();
+  const { signOut } = useClerk();
 
   return (
     <aside className="hidden lg:flex h-screen w-72 flex-col shrink-0 border-r border-white/[0.06] glass sticky top-0">
@@ -67,17 +73,46 @@ export function Sidebar() {
               href={href}
               label={exp.title}
               icon={Icon}
-              active={pathname === href}
+              active={pathname.startsWith(href)}
             />
           );
         })}
       </nav>
 
-      <div className="p-4">
-        <div className="glass-panel px-4 py-3 text-xs text-muted-foreground">
-          <p className="font-medium text-foreground/90 mb-0.5">GenAI Cohort Build</p>
-          <p>Every assignment is one page + one API route.</p>
-        </div>
+      <div className="p-4 border-t border-white/[0.06]">
+        {isSignedIn && user ? (
+          <div className="flex flex-col gap-3 bg-white/[0.02] border border-white/[0.06] rounded-2xl p-3 shadow-md">
+            <div className="flex items-center gap-3">
+              <UserButton
+                appearance={{
+                  elements: {
+                    avatarBox: "h-9 w-9 rounded-full border border-white/10 shadow-sm",
+                  },
+                }}
+              />
+              <div className="flex flex-col min-w-0 flex-1">
+                <span className="text-xs font-semibold text-foreground truncate">
+                  {user.fullName || `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || "User"}
+                </span>
+                <span className="text-[10px] text-muted-foreground truncate">
+                  {user.primaryEmailAddress?.emailAddress}
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={() => signOut({ redirectUrl: "/" })}
+              className="flex items-center justify-center gap-2 w-full py-1.5 px-3 rounded-lg text-xs font-medium text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 transition-all border border-red-500/20"
+            >
+              <LogOut className="h-3.5 w-3.5" />
+              Sign Out
+            </button>
+          </div>
+        ) : (
+          <div className="glass-panel px-4 py-3 text-xs text-muted-foreground">
+            <p className="font-medium text-foreground/90 mb-0.5">GenAI Cohort Build</p>
+            <p>Every assignment is one page + one API route.</p>
+          </div>
+        )}
       </div>
     </aside>
   );

@@ -36,3 +36,6 @@ next-env.d.ts
 
 # vector store cache (if using local files)
 .vectorstore/
+
+# clerk configuration (can include secrets)
+/.clerk/

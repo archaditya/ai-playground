@@ -12,6 +12,7 @@ import {
   Search,
   ArrowUpRight,
   Sparkles,
+  MessageSquare,
   type LucideIcon,
 } from "lucide-react";
 import { EXPERIMENTS } from "@/lib/experiments";
@@ -29,6 +30,7 @@ const ICONS: Record<string, LucideIcon> = {
   Youtube,
   FileText,
   Search,
+  MessageSquare,
 };
 
 export default function DashboardPage() {

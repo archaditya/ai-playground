@@ -1,17 +1,25 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
-/**
- * Global middleware. Rate limiting itself lives in `withApiHandler`
- * (per-route, in lib/api-helpers.ts) since it needs to run in the Node
- * runtime for full control; this middleware handles cheap, edge-safe
- * concerns: basic request tagging and a safety net for missing content-type.
- */
-export function middleware(req: NextRequest) {
+// Authenticate any page subroute within `/chatgpt-clone`
+const isProtectedRoute = createRouteMatcher(["/chatgpt-clone(.*)"]);
+
+export default clerkMiddleware(async (auth, req) => {
+  if (isProtectedRoute(req)) {
+    await auth.protect();
+  }
+
+  // Tag request path in response headers (original behavior)
   const res = NextResponse.next();
   res.headers.set("x-request-path", req.nextUrl.pathname);
   return res;
-}
+});
 
 export const config = {
-  matcher: "/api/:path*",
+  matcher: [
+    // Skip Next.js internals and all static files, unless found in search params
+    '/((?!_next|[^?]*\\.(?:html|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    // Always run for API routes
+    '/(api|trpc)(.*)',
+  ],
 };

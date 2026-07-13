@@ -34,6 +34,13 @@ export const EXPERIMENTS: ExperimentConfig[] = [
     icon: "Database",
     apiPath: "/api/rag",
   },
+  {
+    slug: "chatgpt-clone",
+    title: "ChatGPT Clone",
+    description: "Full-stack ChatGPT clone using Clerk auth, Prisma ORM, Neon DB, and OpenAI stream chat.",
+    icon: "MessageSquare",
+    apiPath: "/api/chatgpt",
+  },
   // {
   //   slug: "memory-agent",
   //   title: "Memory Agent",
