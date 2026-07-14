@@ -154,3 +154,12 @@ This template intentionally keeps things lightweight:
 - AI Search ships with placeholder results — wire up a real search API when needed.
 
 Built for fast iteration, not maximal completeness. Extend only what a given assignment needs.
+
+---
+### Migration CMDs
+```bash
+docker exec -it ai-playground-app sh
+
+npx prisma migrate dev / deploy
+
+```

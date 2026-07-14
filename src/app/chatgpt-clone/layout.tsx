@@ -1,5 +1,5 @@
-import { auth } from "@clerk/nextjs/server";
-import { onBoard } from "@/features/auth/action/onboard";
+import { getCurrentUser } from "@/lib/auth";
+import { redirect } from "next/navigation";
 import React from "react";
 
 export default async function ChatGPTCloneLayout({
@@ -7,11 +7,15 @@ export default async function ChatGPTCloneLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Protect all ChatGPT subroutes using Clerk
-  await auth.protect();
+  const user = await getCurrentUser();
 
-  // Run the onboard server action to sync Clerk profile parameters to the DB
-  await onBoard();
+  if (!user) {
+    redirect("/sign-in?redirect=/chatgpt-clone");
+  }
+
+  if (!user.isOnboarded) {
+    redirect("/onboard");
+  }
 
   return (
     <div className="flex h-screen w-full bg-background overflow-hidden">

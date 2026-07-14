@@ -1,10 +1,5 @@
 import type { ExperimentConfig } from "@/types";
 
-/**
- * Single source of truth for every experiment/assignment in the playground.
- * Add a new assignment by adding one entry here + one page.tsx + one
- * route.ts. The sidebar and dashboard render entirely from this list.
- */
 export const EXPERIMENTS: ExperimentConfig[] = [
   {
     slug: "tool-calling",
@@ -37,52 +32,10 @@ export const EXPERIMENTS: ExperimentConfig[] = [
   {
     slug: "chatgpt-clone",
     title: "ChatGPT Clone",
-    description: "Full-stack ChatGPT clone using Clerk auth, Prisma ORM, Neon DB, and OpenAI stream chat.",
+    description: "Full-stack ChatGPT clone with email OTP auth, Prisma ORM, Neon DB, and OpenAI stream chat.",
     icon: "MessageSquare",
     apiPath: "/api/chatgpt",
   },
-  // {
-  //   slug: "memory-agent",
-  //   title: "Memory Agent",
-  //   description: "Conversational agent that remembers facts across turns",
-  //   icon: "BrainCircuit",
-  //   apiPath: "/api/memory",
-  // },
-  // {
-  //   slug: "mcp-demo",
-  //   title: "MCP Demo",
-  //   description: "Model Context Protocol style tool/resource exposure demo",
-  //   icon: "Plug",
-  //   apiPath: "/api/mcp",
-  // },
-  // {
-  //   slug: "workflow-agent",
-  //   title: "Workflow Agent",
-  //   description: "Breaks a task into steps and executes them in sequence",
-  //   icon: "Workflow",
-  //   apiPath: "/api/workflow",
-  // },
-  // {
-  //   slug: "youtube-rag",
-  //   title: "YouTube RAG",
-  //   description: "Chat over a YouTube video's transcript",
-  //   icon: "Youtube",
-  //   apiPath: "/api/youtube-rag",
-  // },
-  // {
-  //   slug: "pdf-chat",
-  //   title: "PDF Chat",
-  //   description: "Chat over an uploaded PDF's content",
-  //   icon: "FileText",
-  //   apiPath: "/api/pdf-chat",
-  // },
-  // {
-  //   slug: "ai-search",
-  //   title: "AI Search",
-  //   description: "Search-augmented answer synthesis",
-  //   icon: "Search",
-  //   apiPath: "/api/ai-search",
-  // },
 ];
 
 export function getExperiment(slug: string) {

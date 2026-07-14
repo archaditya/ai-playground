@@ -15,26 +15,29 @@ jobs:
 
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v1.2.0
-
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
-
           script: |
             set -e
 
             cd ~/projects/ai-playground
 
+            # Pull latest code
             git fetch origin
             git reset --hard origin/main
 
+            # 1. Install dependencies on host to get Prisma CLI
             npm ci --legacy-peer-deps
 
-            npm run build
+            # 2. Build and run containers
+            docker compose build --no-cache app
+            docker compose up -d
 
-            sudo systemctl restart ai-playground
+            # 3. Run database migrations from the host machine
+            npx prisma migrate deploy
 
-            sleep 5
-
+            # 4. Wait and run health check
+            sleep 10
             curl --fail http://localhost:3000/api/health

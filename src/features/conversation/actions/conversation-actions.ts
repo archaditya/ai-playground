@@ -1,22 +1,11 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
+import { requireCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
 export async function assertOwnsConversation(conversationId: string) {
-  const { userId: clerkId } = await auth();
-  if (!clerkId) {
-    throw new Error("Unauthorized");
-  }
-
-  const dbUser = await prisma.user.findUnique({
-    where: { clerkId },
-  });
-
-  if (!dbUser) {
-    throw new Error("User not onboarded");
-  }
+  const user = await requireCurrentUser();
 
   const conversation = await prisma.conversation.findUnique({
     where: { id: conversationId },
@@ -26,30 +15,19 @@ export async function assertOwnsConversation(conversationId: string) {
     throw new Error("Conversation not found");
   }
 
-  if (conversation.userId !== dbUser.id) {
+  if (conversation.userId !== user.id) {
     throw new Error("Forbidden: You do not own this conversation");
   }
 
-  return { user: dbUser, conversation };
+  return { user, conversation };
 }
 
 export async function listConversations() {
-  const { userId: clerkId } = await auth();
-  if (!clerkId) {
-    throw new Error("Unauthorized");
-  }
-
-  const dbUser = await prisma.user.findUnique({
-    where: { clerkId },
-  });
-
-  if (!dbUser) {
-    return [];
-  }
+  const user = await requireCurrentUser();
 
   return prisma.conversation.findMany({
     where: {
-      userId: dbUser.id,
+      userId: user.id,
       isArchived: false,
     },
     orderBy: [
@@ -72,22 +50,11 @@ export async function createConversation(params?: {
   model?: string;
   systemPrompt?: string;
 }) {
-  const { userId: clerkId } = await auth();
-  if (!clerkId) {
-    throw new Error("Unauthorized");
-  }
-
-  const dbUser = await prisma.user.findUnique({
-    where: { clerkId },
-  });
-
-  if (!dbUser) {
-    throw new Error("User not onboarded");
-  }
+  const user = await requireCurrentUser();
 
   const conversation = await prisma.conversation.create({
     data: {
-      userId: dbUser.id,
+      userId: user.id,
       title: params?.title ?? "New Chat",
       model: params?.model,
       systemPrompt: params?.systemPrompt,

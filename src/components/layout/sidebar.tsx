@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useUser, UserButton, useClerk } from "@clerk/nextjs";
+import { useAuth } from "@/components/providers/auth-provider";
 import {
   Drama,
   Vote,
@@ -40,8 +40,19 @@ const ICONS: Record<string, LucideIcon> = {
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { user, isSignedIn } = useUser();
-  const { signOut } = useClerk();
+  const { user, isAuthenticated, logout } = useAuth();
+
+  const displayName =
+    user?.firstName && user?.lastName
+      ? `${user.firstName} ${user.lastName}`
+      : user?.firstName || "User";
+
+  const initials = displayName
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
 
   return (
     <aside className="hidden lg:flex h-screen w-72 flex-col shrink-0 border-r border-white/[0.06] glass sticky top-0">
@@ -80,27 +91,23 @@ export function Sidebar() {
       </nav>
 
       <div className="p-4 border-t border-white/[0.06]">
-        {isSignedIn && user ? (
+        {isAuthenticated && user ? (
           <div className="flex flex-col gap-3 bg-white/[0.02] border border-white/[0.06] rounded-2xl p-3 shadow-md">
             <div className="flex items-center gap-3">
-              <UserButton
-                appearance={{
-                  elements: {
-                    avatarBox: "h-9 w-9 rounded-full border border-white/10 shadow-sm",
-                  },
-                }}
-              />
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-violet-500/20 to-sky-400/20 border border-white/10 text-xs font-bold text-primary">
+                {initials}
+              </div>
               <div className="flex flex-col min-w-0 flex-1">
                 <span className="text-xs font-semibold text-foreground truncate">
-                  {user.fullName || `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || "User"}
+                  {displayName}
                 </span>
                 <span className="text-[10px] text-muted-foreground truncate">
-                  {user.primaryEmailAddress?.emailAddress}
+                  {user.email}
                 </span>
               </div>
             </div>
             <button
-              onClick={() => signOut({ redirectUrl: "/" })}
+              onClick={logout}
               className="flex items-center justify-center gap-2 w-full py-1.5 px-3 rounded-lg text-xs font-medium text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 transition-all border border-red-500/20"
             >
               <LogOut className="h-3.5 w-3.5" />
@@ -144,4 +151,3 @@ function SidebarLink({
     </Link>
   );
 }
-

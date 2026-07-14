@@ -3,9 +3,12 @@ import OpenAI from "openai";
 /**
  * Single shared OpenAI client. Import this everywhere instead of
  * instantiating `new OpenAI()` per-route so config stays centralized.
+ * 
+ * At build time inside Docker, the OPENAI_API_KEY is not defined, so we
+ * fallback to a dummy key to prevent the builder process from crashing.
  */
 export const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY || "dummy-key-for-build-time-pass",
 });
 
 export const OPENAI_MODELS = {

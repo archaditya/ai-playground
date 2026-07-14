@@ -122,13 +122,23 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
 
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
-  clerkId: 'clerkId',
   email: 'email',
   firstName: 'firstName',
   lastName: 'lastName',
   imageUrl: 'imageUrl',
+  isOnboarded: 'isOnboarded',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OtpTokenScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  otpHash: 'otpHash',
+  expiresAt: 'expiresAt',
+  attempts: 'attempts',
+  used: 'used',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.ConversationScalarFieldEnum = {
@@ -201,6 +211,7 @@ exports.MessageStatus = exports.$Enums.MessageStatus = {
 
 exports.Prisma.ModelName = {
   User: 'User',
+  OtpToken: 'OtpToken',
   Conversation: 'Conversation',
   Message: 'Message'
 };
