@@ -38,6 +38,9 @@ services:
 
     build:
       context: .
+      dockerfile: Dockerfile
+      args:
+        DATABASE_URL: postgresql://playground:playground_dev@postgres:5432/ai_playground
 
     restart: unless-stopped
 
