@@ -1,6 +1,7 @@
 import { getCurrentUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import React from "react";
+import { ChatShell } from "@/features/conversation/components/chat-shell";
 
 export default async function ChatGPTCloneLayout({
   children,
@@ -18,8 +19,8 @@ export default async function ChatGPTCloneLayout({
   }
 
   return (
-    <div className="flex h-screen w-full bg-background overflow-hidden">
+    <ChatShell>
       {children}
-    </div>
+    </ChatShell>
   );
 }
