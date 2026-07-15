@@ -31,11 +31,9 @@ export function ConversationView({
     status,
     sendMessage,
   } = useChat({
+    id: conversationId,
     transport: new DefaultChatTransport({
       api: "/api/chat",
-      body: {
-        id: conversationId,
-      },
     }),
     messages: initialMessages.map((m) => ({
       id: m.id,
