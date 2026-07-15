@@ -37,12 +37,16 @@ export async function createSessionToken(userId: string, email: string): Promise
  */
 export async function verifySessionToken(token: string): Promise<SessionPayload | null> {
   try {
+    console.log("[verifySessionToken] Verifying token:", token.substring(0, 15) + "...");
     const { payload } = await jwtVerify(token, getJwtSecret());
+    console.log("[verifySessionToken] Verification success, payload:", payload);
     if (!payload.sub || !payload.email) {
+      console.warn("[verifySessionToken] Missing sub/email in payload");
       return null;
     }
     return payload as SessionPayload;
-  } catch {
+  } catch (err) {
+    console.error("[verifySessionToken] Verification failed error:", err);
     return null;
   }
 }
@@ -87,20 +91,28 @@ export async function getCurrentUser() {
   const cookieStore = await cookies();
   const sessionCookie = cookieStore.get(COOKIE_NAME);
 
+  console.log("[getCurrentUser] sessionCookie:", sessionCookie ? { name: sessionCookie.name, valueExists: !!sessionCookie.value } : "null");
+
   if (!sessionCookie?.value) {
     return null;
   }
 
   const payload = await verifySessionToken(sessionCookie.value);
+  console.log("[getCurrentUser] verifySessionToken payload:", payload);
   if (!payload?.sub) {
     return null;
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: payload.sub },
-  });
-
-  return user;
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: payload.sub },
+    });
+    console.log("[getCurrentUser] database findUnique user:", user ? { id: user.id, email: user.email, isOnboarded: user.isOnboarded } : "null");
+    return user;
+  } catch (err) {
+    console.error("[getCurrentUser] database query error:", err);
+    return null;
+  }
 }
 
 /**

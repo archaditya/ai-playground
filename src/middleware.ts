@@ -23,12 +23,15 @@ function getJwtSecret(): Uint8Array {
 
 async function isAuthenticated(req: NextRequest): Promise<boolean> {
   const token = req.cookies.get(COOKIE_NAME)?.value;
+  console.log(`[middleware] isAuthenticated check for pathname [${req.nextUrl.pathname}], token exists:`, !!token);
   if (!token) return false;
 
   try {
     const { payload } = await jwtVerify(token, getJwtSecret());
+    console.log(`[middleware] token verification success for sub:`, payload.sub);
     return !!payload.sub;
-  } catch {
+  } catch (err) {
+    console.error(`[middleware] token verification failed error:`, err);
     return false;
   }
 }
@@ -42,6 +45,7 @@ export default async function middleware(req: NextRequest) {
     pathname.startsWith(prefix)
   );
   if (isProtected && !authenticated) {
+    console.log(`[middleware] redirecting [${pathname}] -> [/sign-in] because not authenticated`);
     const signInUrl = new URL("/sign-in", req.url);
     signInUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(signInUrl);
@@ -50,6 +54,7 @@ export default async function middleware(req: NextRequest) {
   // Auth routes: redirect to home if already authenticated
   const isAuthRoute = AUTH_ROUTES.some((route) => pathname.startsWith(route));
   if (isAuthRoute && authenticated) {
+    console.log(`[middleware] redirecting auth-route [${pathname}] -> [/] because already authenticated`);
     return NextResponse.redirect(new URL("/", req.url));
   }
 
