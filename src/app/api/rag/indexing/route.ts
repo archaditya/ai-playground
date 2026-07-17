@@ -47,8 +47,8 @@ export const POST = withApiHandler("rag-indexing", async (req) => {
 
   const client = new QdrantClient({ url });
 
-  const exists = await client.collectionExists(collectionName);
-  if (!exists) {
+  const existsResult = await client.collectionExists(collectionName);
+  if (!existsResult.exists) {
     await client.createCollection(collectionName, {
       vectors: {
         size: 1536,
@@ -84,22 +84,19 @@ export const POST = withApiHandler("rag-indexing", async (req) => {
     }
   }
 
-  // Load the PDF content as document
   const loader = new PDFLoader(filePath);
-  const documents = await loader.load(); // Already chunks data page by page
+  const documents = await loader.load();
 
-  // Initalizing the embedding model
   const embeddings = new OpenAIEmbeddings({
     model: "text-embedding-3-small",
     apiKey: process.env.OPENAI_API_KEY,
   });
 
-  // the vector store
   const vectorStore = await QdrantVectorStore.fromExistingCollection(
     embeddings,
     {
       url: process.env.QDRANT_URL!,
-      collectionName: "rag-practice",
+      collectionName: collectionName,
     },
   );
 

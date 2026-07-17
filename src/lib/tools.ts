@@ -125,3 +125,51 @@ export async function runTool(name: string, args: any): Promise<string> {
   if (!impl) return `Error: unknown tool "${name}".`;
   return impl(args);
 }
+
+import { tool } from "ai";
+import { z } from "zod";
+
+export const webSearchTool = tool({
+  description: "Search the web for real-time information. Use this when the user asks about current events, recent news, live data, or anything you don't have knowledge about.",
+  inputSchema: z.object({
+    query: z.string().describe("The search query to look up on the web"),
+  }),
+  execute: async ({ query }) => {
+    const apiKey = process.env.TAVILY_API_KEY;
+    if (!apiKey) {
+      return { error: "Web search is not configured.", results: [] };
+    }
+
+    try {
+      const res = await fetch("https://api.tavily.com/search", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          api_key: apiKey,
+          query: query,
+          search_depth: "basic",
+          max_results: 5,
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error(`Tavily API error: ${res.status}`);
+      }
+
+      const data = await res.json();
+      const results = (data.results || []).map((r: any) => ({
+        title: r.title,
+        url: r.url,
+        description: r.content,
+      }));
+
+      return { query, results, resultCount: results.length };
+    } catch (error: any) {
+      console.error("Tavily search error:", error.message);
+      return { error: `Search failed: ${error.message}`, results: [] };
+    }
+  },
+});
+
